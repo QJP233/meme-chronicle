@@ -39,7 +39,7 @@ cd meme-chronicle
 start 抽象梗编年史.html
 ```
 
-或直接访问 [GitHub Pages](https://qjp233.github.io/meme-chronicle/)（如已启用）。
+或直接在线访问 [GitHub Pages](https://qjp233.github.io/meme-chronicle/)（自动跳转至编年史页面）。
 
 ## 说明
 
