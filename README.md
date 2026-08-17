@@ -8,7 +8,7 @@
 
 单文件 HTML 页面（`抽象梗编年史.html`），双击即可在浏览器打开，无需任何依赖。
 
-- **12 个年份章节**（2015–2026），共 **168 个梗条目**
+- **12 个年份章节**（2015–2026），共 **185 个梗条目**（持续更新中）
 - 每条含：起源考据 · 释义 · 用法例句
 - 附抽象文化起源考（6324 · 孙笑川 · 狗粉丝文化）
 - 2025–2026 词条综合《咬文嚼字》与国家语言资源监测中心年度榜单核实
@@ -25,6 +25,7 @@
 ```
 meme-chronicle/
 ├── 抽象梗编年史.html   # 全部内容（单文件）
+├── index.html          # 与编年史同内容，供 GitHub Pages 根路径直接展示
 └── README.md
 ```
 
@@ -39,7 +40,7 @@ cd meme-chronicle
 start 抽象梗编年史.html
 ```
 
-或直接在线访问 [GitHub Pages](https://qjp233.github.io/meme-chronicle/)（自动跳转至编年史页面）。
+或直接在线访问 [GitHub Pages](https://qjp233.github.io/meme-chronicle/)。
 
 ## 说明
 
