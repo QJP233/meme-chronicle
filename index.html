@@ -202,6 +202,69 @@
   .era .body h3{font-family:var(--serif);font-size:1.25rem;color:var(--ink);margin-bottom:8px}
   .era .body p{color:var(--ink-soft);font-size:.92rem;font-weight:300}
 
+  /* ============ 今日热梗 ============ */
+  .today{padding:80px 0 30px;max-width:980px;margin:0 auto}
+  .today-head{display:flex;align-items:baseline;gap:16px;margin-bottom:24px}
+  .today-eyebrow{
+    font-family:var(--latin);font-style:italic;color:var(--blue-mid);
+    font-size:1.05rem;letter-spacing:.08em;
+  }
+  .today-eyebrow::before{content:"ΣΗΜΕΡΟΝ · ";color:var(--blue-sky);font-style:normal;letter-spacing:.2em;font-size:.8rem}
+  .today-head h2{font-family:var(--serif);font-weight:900;font-size:1.8rem;color:var(--blue-deep)}
+  .today-head .dice{margin-left:auto;font-family:var(--latin);color:var(--blue-sky);font-size:1.2rem}
+  .today-card{
+    position:relative;border:1px solid var(--line-strong);border-radius:18px;
+    background:linear-gradient(180deg,var(--blue-wash),#fff 40%);
+    padding:34px 34px 30px;overflow:hidden;min-height:220px;
+    box-shadow:0 18px 44px -26px rgba(29,78,137,.45);
+  }
+  .today-card::before{
+    content:"";position:absolute;top:0;left:0;bottom:0;width:6px;
+    background:linear-gradient(180deg,var(--blue),var(--blue-sky));
+  }
+  .today-card::after{
+    content:"";position:absolute;bottom:-2px;left:0;right:0;height:14px;
+    background:var(--meander);opacity:.35;
+  }
+  .today-card .tc-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .today-card .tc-year{
+    font-family:var(--latin);font-weight:700;font-size:2.4rem;line-height:1;
+    color:var(--white);-webkit-text-stroke:1.5px var(--blue);
+  }
+  .today-card .tc-tag{
+    font-size:.7rem;letter-spacing:.14em;color:var(--blue);
+    border:1px solid var(--blue-sky);border-radius:999px;padding:2px 10px;
+  }
+  .today-card h3{
+    font-family:var(--serif);font-weight:700;font-size:1.7rem;color:var(--ink);
+    margin:14px 0 6px;
+  }
+  .today-card .tc-src{font-size:.88rem;color:var(--blue-mid)}
+  .today-card .tc-src b{color:var(--blue-deep);font-weight:600}
+  .today-card .tc-desc{font-size:.95rem;color:var(--ink-soft);margin-top:12px;font-weight:300;max-width:760px}
+  .today-card .tc-use{
+    display:inline-block;font-size:.88rem;color:var(--ink);margin-top:16px;
+    background:#fff;border:1px solid var(--line);border-left:2px solid var(--blue);
+    padding:10px 14px;border-radius:0 10px 10px 0;
+  }
+  .today-card .tc-use b{color:var(--blue-deep)}
+  .today-card .tc-use em{font-style:normal;color:var(--blue);font-family:var(--serif)}
+  .today-card .tc-from{font-family:var(--latin);font-style:italic;color:var(--blue-sky);font-size:.82rem;margin-top:14px}
+  .today-btn{
+    margin-top:20px;background:var(--blue);color:#fff;border:none;cursor:pointer;
+    font-family:var(--sans);font-size:.9rem;letter-spacing:.12em;
+    padding:11px 26px;border-radius:999px;transition:.25s;
+  }
+  .today-btn:hover{background:var(--blue-deep);transform:translateY(-2px)}
+  .today-card.swap{animation:tcSwap .45s cubic-bezier(.2,.7,.3,1)}
+  @keyframes tcSwap{
+    0%{opacity:.2;transform:translateX(-18px)}
+    60%{opacity:1;transform:translateX(4px)}
+    100%{transform:none}
+  }
+  .today-card.loaded{animation:tcIn .6s cubic-bezier(.2,.7,.3,1)}
+  @keyframes tcIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
   /* ============ 页脚 ============ */
   footer{
     margin-top:120px;border-top:1px solid var(--line);background:var(--blue-wash);
@@ -273,6 +336,17 @@
 </header>
 
 <main>
+
+  <!-- 今日热梗 -->
+  <section class="today" id="today">
+    <div class="today-head">
+      <div class="today-eyebrow">神殿抽签 · 今日箴言</div>
+      <h2>今日热梗</h2>
+      <div class="dice">⚀ ⚂ ⚅</div>
+    </div>
+    <div class="today-card" id="todayCard"></div>
+    <button class="today-btn" id="todayBtn">换一个 · Δίσκος</button>
+  </section>
 
   <!-- 引言 -->
   <section class="intro" id="intro">
@@ -1824,6 +1898,45 @@
   const btn = document.getElementById('totop');
   addEventListener('scroll', () => btn.classList.toggle('show', scrollY > 600));
   btn.onclick = () => scrollTo({top: 0, behavior: 'smooth'});
+
+  // ============ 今日热梗 ============
+  const todayCard = document.getElementById('todayCard');
+  const todayBtn = document.getElementById('todayBtn');
+  const memeData = [...document.querySelectorAll('.meme')].map(el => {
+    const sec = el.closest('section.year');
+    return {
+      year: sec ? sec.id.replace('y', '') : '',
+      title: el.querySelector('h3').textContent.trim(),
+      tag: el.querySelector('.tag').textContent.trim(),
+      src: el.querySelector('.src').innerHTML,
+      desc: el.querySelector('.desc').textContent.trim(),
+      use: el.querySelector('.use').innerHTML
+    };
+  });
+  const d = new Date();
+  const daySeed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  let cur = daySeed % memeData.length;
+
+  function renderToday(i, anim) {
+    const m = memeData[i];
+    todayCard.innerHTML =
+      '<div class="tc-top"><span class="tc-year">' + m.year + '</span><span class="tc-tag">' + m.tag + '</span></div>' +
+      '<h3>' + m.title + '</h3>' +
+      '<p class="tc-src">' + m.src + '</p>' +
+      '<p class="tc-desc">' + m.desc + '</p>' +
+      '<div class="tc-use">' + m.use + '</div>' +
+      '<div class="tc-from">Ex Chronica · 摘自编年史 ' + m.year + ' 年卷</div>';
+    todayCard.classList.remove('swap', 'loaded');
+    void todayCard.offsetWidth;
+    todayCard.classList.add(anim);
+  }
+  renderToday(cur, 'loaded');
+  todayBtn.addEventListener('click', () => {
+    let n;
+    do { n = Math.floor(Math.random() * memeData.length); } while (n === cur && memeData.length > 1);
+    cur = n;
+    renderToday(cur, 'swap');
+  });
 </script>
 
 </body>
